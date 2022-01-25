@@ -70,8 +70,8 @@ export default function PaginaInicial() {
             <Box
                 styleSheet={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    backgroundColor: appConfig.theme.colors.primary['800'],
-                    backgroundImage: 'url(https://media.pocketgamer.com/artwork/ra-82605-1585325135/pocketgamer-zoom-backgrounds-013.jpg)',
+                    backgroundColor: appConfig.theme.colors.primary['500'],
+                    backgroundImage: 'url(https://mir-s3-cdn-cf.behance.net/project_modules/1400/d8c23e60094321.5a82d03ed6061.gif)',
                     backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 }}
             >
@@ -120,9 +120,9 @@ export default function PaginaInicial() {
                             fullWidth
                             buttonColors={{
                                 contrastColor: appConfig.theme.colors.neutrals["000"],
-                                mainColor: appConfig.theme.colors.primary[500],
-                                mainColorLight: appConfig.theme.colors.primary[400],
-                                mainColorStrong: appConfig.theme.colors.primary[600],
+                                mainColor: appConfig.theme.colors.primary[100],
+                                mainColorLight: appConfig.theme.colors.primary[800],
+                                mainColorStrong: appConfig.theme.colors.primary[800],
                             }}
                         />
                     </Box>
