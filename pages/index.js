@@ -21,7 +21,7 @@ function Title(props) {
 }
 
 export default function PaginaInicial() {
-    const [username, setUsername] = React.useState();
+    const [username, setUsername] = React.useState('');
     const roteamento = useRouter();
     const defaultImage = 'https://cdn.icon-icons.com/icons2/1356/PNG/512/if-orc-2913114_88595.png';
 
