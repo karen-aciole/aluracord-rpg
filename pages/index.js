@@ -55,6 +55,7 @@ export default function PaginaInicial() {
                     <Box
                         as="form"
                         onSubmit={function (infosDoEvento) {
+
                             infosDoEvento.preventDefault();
                             console.log('Alguém submeteu o form');
                             roteamento.push('/chat');
@@ -64,7 +65,7 @@ export default function PaginaInicial() {
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
                         }}
                     >
-                        <Title tag="h2">Boas vindas de volta!</Title>
+                        <Title tag="h2">Welcome my fellows travelers!</Title>
                         <Text variant="body3" styleSheet={{ marginBottom: '32px', color: appConfig.theme.colors.neutrals[300] }}>
                             {appConfig.name}
                         </Text>
@@ -88,6 +89,7 @@ export default function PaginaInicial() {
                             }}
                         />
                         <Button
+                            disabled={username.length < 3}
                             type='submit'
                             label='Entrar'
                             fullWidth
@@ -101,8 +103,6 @@ export default function PaginaInicial() {
                     </Box>
                     {/* Formulário */}
 
-
-                    {/* Photo Area */}
                     <Box
                         styleSheet={{
                             display: 'flex',

@@ -1,23 +1,49 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzQ5NTU1NSwiZXhwIjoxOTU5MDcxNTU1fQ.QezPjWeWUSpKxxXIm1ZT6mROxu86n-JLwxjOsrpexF8'
+const SUPABASE_URL = 'https://gerkjweaxpadhzolrzlm.supabase.co'
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage() {
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+    //const deletaMensagem = idDeleta => setListaDeMensagens(listaDeMensagens.filter(mensagem => mensagem.id !== idDeleta)) ~ not working (Deletar mensagens)
+
+    React.useEffect(() => {
+        supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(( { data }) => {
+                setListaDeMensagens(data);
+            });
+    }, []);
 
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaDeMensagens.length + 1,
-            de: 'Karen Aciole',
+            de: 'karen-aciole',
             texto: novaMensagem,
-        }
-        setListaDeMensagens([
-            mensagem, 
-            ...listaDeMensagens,
-        ])
+        };
+
+        supabaseClient
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(( { data }) => {
+                console.log('creating...');
+                setListaDeMensagens([
+                    data[0],
+                    ...listaDeMensagens,
+                ])
+            });
+
         setMensagem('');
     }
+
 
     return (
         <Box
@@ -66,6 +92,7 @@ export default function ChatPage() {
                             alignItems: 'center',
                         }}
                     >
+
                         <TextField
                             value={mensagem}
                             onChange={(event) => {
@@ -73,24 +100,34 @@ export default function ChatPage() {
                                 setMensagem(valor);
                             }}
                             onKeyPress={(event) => {
-                                if (event.key === 'Enter') {
+                                if (event.key === 'Enter' && mensagem.trim() !== '') {
                                     event.preventDefault();
                                     handleNovaMensagem(mensagem);
                                 }
                             }}
+
                             placeholder="Insert your message here..."
                             type="textarea"
                             styleSheet={{
-                                width: '100%',
+                                width: '95%',
                                 border: '0',
                                 resize: 'none',
                                 borderRadius: '5px',
-                                padding: '6px 8px',
+                                padding: '8px 10px',
                                 backgroundColor: appConfig.theme.colors.neutrals[800],
-                                marginRight: '12px',
+                                marginRight: '30px',
                                 color: appConfig.theme.colors.neutrals[100],
                             }}
                         />
+
+                         <Button
+                            disabled={!mensagem}
+                            onClick={() => {mensagem.trim() !== '' ? handleNovaMensagem(mensagem) : setMensagem('')}}
+                            iconName="paperPlane"
+                            rounded="full"
+                            variant="primary"
+                            type="submit"
+                        /> 
                     </Box>
                 </Box>
             </Box>
@@ -118,6 +155,7 @@ function Header() {
 
 function MessageList(props) {
     console.log('MessageList', props);
+
     return (
         <Box
             tag="ul"
@@ -138,7 +176,7 @@ function MessageList(props) {
                         styleSheet={{
                             borderRadius: '5px',
                             padding: '6px',
-                            marginBottom: '12px',
+                            marginBottom: '18px',
                             hover: {
                                 backgroundColor: appConfig.theme.colors.neutrals[700],
                             }
@@ -151,13 +189,13 @@ function MessageList(props) {
                         >
                             <Image
                                 styleSheet={{
-                                    width: '20px',
-                                    height: '20px',
+                                    width: '40px',
+                                    height: '40px',
                                     borderRadius: '50%',
                                     display: 'inline-block',
                                     marginRight: '8px',
                                 }}
-                                src={`https://github.com/karen-aciole.png`}
+                                src={`https://github.com/${mensagem.de}.png`}
                             />
                             <Text tag="strong">
                                 {mensagem.de}
@@ -172,6 +210,14 @@ function MessageList(props) {
                             >
                                 {(new Date().toLocaleDateString())}
                             </Text>
+                            {/* <Button
+                                iconName='FaTrashAlt'
+                                onClick={() => deletaMensagem(mensagem.id)}   
+                                variant='tertiary'
+                                colorVariant='negative'
+                                type='button'
+                            >
+                            </Button> */}
                         </Box>
                         {mensagem.texto}
                     </Text>
