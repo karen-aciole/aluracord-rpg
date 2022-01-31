@@ -1,13 +1,26 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { useRouter } from 'next/router';
 import { createClient } from '@supabase/supabase-js';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzQ5NTU1NSwiZXhwIjoxOTU5MDcxNTU1fQ.QezPjWeWUSpKxxXIm1ZT6mROxu86n-JLwxjOsrpexF8'
 const SUPABASE_URL = 'https://gerkjweaxpadhzolrzlm.supabase.co'
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function listenToMessagesAtRealTime(addMessage) {
+    return supabaseClient
+        .from('mensagens')
+        .on('INSERT', (liveMessage) => {
+            addMessage(liveMessage.new);
+        })
+        .subscribe();
+}
+
 export default function ChatPage() {
+    const roteamento = useRouter();
+    const usuarioLogado = roteamento.query.username;
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
     //const deletaMensagem = idDeleta => setListaDeMensagens(listaDeMensagens.filter(mensagem => mensagem.id !== idDeleta)) ~ not working (Deletar mensagens)
@@ -17,14 +30,23 @@ export default function ChatPage() {
             .from('mensagens')
             .select('*')
             .order('id', { ascending: false })
-            .then(( { data }) => {
+            .then(({ data }) => {
                 setListaDeMensagens(data);
             });
+
+        listenToMessagesAtRealTime((novaMensagem) => {
+            setListaDeMensagens((valorAtualDalista ) => {
+                return [
+                    novaMensagem,
+                    ...valorAtualDalista,
+                ]
+            });
+        });
     }, []);
 
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            de: 'karen-aciole',
+            de: usuarioLogado,
             texto: novaMensagem,
         };
 
@@ -33,12 +55,7 @@ export default function ChatPage() {
             .insert([
                 mensagem
             ])
-            .then(( { data }) => {
-                console.log('creating...');
-                setListaDeMensagens([
-                    data[0],
-                    ...listaDeMensagens,
-                ])
+            .then(({ data }) => {
             });
 
         setMensagem('');
@@ -84,7 +101,7 @@ export default function ChatPage() {
                 >
 
                     <MessageList mensagens={listaDeMensagens} />
-                    
+
                     <Box
                         as="form"
                         styleSheet={{
@@ -120,14 +137,34 @@ export default function ChatPage() {
                             }}
                         />
 
-                         <Button
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
+                                //console.log('[uSANDO O COMPONENTE] salva esse sticker no banco')
+                                handleNovaMensagem(':sticker: ' + sticker);
+                            }}
+                        />
+
+                        <Button
                             disabled={!mensagem}
-                            onClick={() => {mensagem.trim() !== '' ? handleNovaMensagem(mensagem) : setMensagem('')}}
+                            onClick={() => { mensagem.trim() !== '' ? handleNovaMensagem(mensagem) : setMensagem('') }}
                             iconName="paperPlane"
                             rounded="full"
                             variant="primary"
                             type="submit"
-                        /> 
+                            styleSheet={{
+                                padding: '0 3px 0 0',
+                                minWidth: '50px',
+                                minHeight: '50px',
+                                fontSize: '20px',
+                                marginBottom: '8px',
+                                lineHeight: '0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: '50%',
+                                marginLeft: '20px',
+                            }}
+                        />
                     </Box>
                 </Box>
             </Box>
@@ -154,7 +191,7 @@ function Header() {
 }
 
 function MessageList(props) {
-    console.log('MessageList', props);
+    //console.log('MessageList', props);
 
     return (
         <Box
@@ -219,7 +256,18 @@ function MessageList(props) {
                             >
                             </Button> */}
                         </Box>
-                        {mensagem.texto}
+                        {mensagem.texto.startsWith(':sticker:')
+                            ? (
+                                <Image src={mensagem.texto.replace(':sticker:', '')}
+                                    styleSheet={{
+                                        width: '200px',
+                                        height: '150px',
+                                    }}
+                                />
+                            )
+                            : (
+                                mensagem.texto
+                            )}
                     </Text>
                 );
             })}
