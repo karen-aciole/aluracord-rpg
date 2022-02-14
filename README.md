@@ -23,7 +23,6 @@ Ferramentas utilizadas no projeto:
 ### Features
 - [x] Adicionar um botão pra enviar mensagem 
 - [ ] Adicionar botão pra excluir mensagem
-- [ ] Autenticação apenas via Github e/ou Google (expandir)
 
 ---
 *Projeto feito na Imersão React 4 da @alura*
